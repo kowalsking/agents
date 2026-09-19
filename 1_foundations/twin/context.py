@@ -1,6 +1,6 @@
 from pypdf import PdfReader
 
-reader = PdfReader("linkedin.pdf")
+reader = PdfReader("kozlenko.pdf")
 
 linkedin = ""
 for page in reader.pages:
