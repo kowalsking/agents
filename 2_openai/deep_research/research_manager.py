@@ -1,5 +1,6 @@
 from agents import Runner, trace, gen_trace_id
 from search_agent import search_agent
+from clarify_agent import clarify_agent
 from planner_agent import planner_agent, WebSearchItem, WebSearchPlan
 from writer_agent import writer_agent, ReportData
 from email_agent import email_agent
@@ -11,6 +12,7 @@ class ResearchManager:
         """ Run the deep research process, yielding the status updates and the final report"""
         trace_id = gen_trace_id()
         with trace("Research trace", trace_id=trace_id):
+            clarify_agent = await self.clarify_searches(query)
             yield f"Starting research. Trace: https://platform.openai.com/traces/trace?trace_id={trace_id}"
             search_plan = await self.plan_searches(query)
             yield f"Searches planned, starting {len(search_plan.searches)} searches..."     
@@ -25,6 +27,11 @@ class ResearchManager:
     async def plan_searches(self, query: str) -> WebSearchPlan:
         """ Plan the searches to perform for the query """
         result = await Runner.run(planner_agent, f"Query: {query}")
+        return result.final_output
+
+    async def clarify_searches(self, query: str) -> WebSearchPlan:
+        """ Plan the searches to perform for the query """
+        result = await Runner.run(clarify_agent, f"Query: {query}")
         return result.final_output
 
     async def perform_searches(self, search_plan: WebSearchPlan) -> list[str]:
