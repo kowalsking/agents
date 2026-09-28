@@ -21,7 +21,7 @@ def run():
     Run the crew.
     """
     inputs = {
-        'assignement': assignment
+        'assignment': assignment
     }
 
     try:
