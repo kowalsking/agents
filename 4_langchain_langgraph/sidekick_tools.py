@@ -2,7 +2,9 @@
 
 import asyncio
 import os
+import sys
 from contextlib import AsyncExitStack
+from pathlib import Path
 
 import requests
 import wikipedia
@@ -10,8 +12,8 @@ from dotenv import load_dotenv
 from langchain_community.tools import GoogleSerperRun, WikipediaQueryRun
 from langchain_community.utilities import GoogleSerperAPIWrapper, WikipediaAPIWrapper
 from langchain_core.tools import tool
-from langchain_mcp_adapters.client import MultiServerMCPClient
-from langchain_mcp_adapters.tools import load_mcp_tools
+from fastmcp.client.transports import StdioTransport
+from langchain.mcp import MCPAdapter
 
 load_dotenv(override=True)
 
@@ -48,7 +50,7 @@ def mcp_connections(sandbox: str) -> dict:
         "playwright": {
             "transport": "stdio",
             "command": "npx",
-            "args": ["@playwright/mcp@latest", "--isolated"],
+            "args": ["-y", "@playwright/mcp@latest", "--isolated"],
         },
         "filesystem": {
             "transport": "stdio",
@@ -74,11 +76,16 @@ class McpSessions:
         self._task = None
 
     async def _run(self):
-        client = MultiServerMCPClient(self.connections)
         async with AsyncExitStack() as stack:
-            for name in self.connections:
-                session = await stack.enter_async_context(client.session(name))
-                self.tools += await load_mcp_tools(session, server_name=name)
+            for name, connection in self.connections.items():
+                transport = StdioTransport(
+                    command=connection["command"],
+                    args=connection["args"],
+                    keep_alive=False,
+                    log_file=Path(f"{name}_mcp.log") if sys.platform == "win32" else None,
+                )
+                adapter = await stack.enter_async_context(MCPAdapter(transport))
+                self.tools += await adapter.list_tools()
             self._ready.set()
             await self._stop.wait()
 
