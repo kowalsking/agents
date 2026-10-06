@@ -1,0 +1,7 @@
+# Isolated MAF environment: its native MCP adapter requires MCP SDK 1.x.
+agent-framework-core==1.8.1
+agent-framework-openai==1.8.1
+mcp>=1.24,<2
+python-dotenv>=1.2.2,<2
+rich>=15,<16
+ipykernel>=7,<8
