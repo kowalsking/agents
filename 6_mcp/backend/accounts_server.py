@@ -1,7 +1,7 @@
-from mcp.server.fastmcp import FastMCP
+from mcp.server.mcpserver import MCPServer
 from .accounts import Account
 
-mcp = FastMCP("accounts_server")
+mcp = MCPServer("accounts_server")
 
 @mcp.tool()
 async def get_balance(name: str) -> float:
