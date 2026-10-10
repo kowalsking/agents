@@ -1,7 +1,7 @@
-from mcp.server.fastmcp import FastMCP
+from mcp.server.mcpserver import MCPServer
 from .market import get_share_price
 
-mcp = FastMCP("market_server")
+mcp = MCPServer("market_server")
 
 @mcp.tool()
 async def lookup_share_price(symbol: str) -> float:
