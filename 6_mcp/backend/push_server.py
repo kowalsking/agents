@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 import requests
 from pydantic import BaseModel, Field
-from mcp.server.fastmcp import FastMCP
+from mcp.server.mcpserver import MCPServer
 
 load_dotenv(override=True)
 
@@ -11,7 +11,7 @@ pushover_token = os.getenv("PUSHOVER_TOKEN")
 pushover_url = "https://api.pushover.net/1/messages.json"
 
 
-mcp = FastMCP("push_server")
+mcp = MCPServer("push_server")
 
 
 class PushModelArgs(BaseModel):
